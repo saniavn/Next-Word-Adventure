@@ -1,0 +1,1047 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Prediction (n-gram)</title>
+    <style>
+
+       body {
+           font-family: 'Comic Sans MS', cursive, sans-serif; /* Fun font */
+           background-color: #d1f9fa; /* Light blue background */
+           background-image: url('{{ url_for('static', filename='images/Nov141111.jpg') }}');
+
+           background-size: cover;
+           background-repeat: no-repeat;
+           color: #333;
+           padding: 10px;
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+       }
+
+       h1 {
+           color: #00796b;
+           text-align: center;
+           margin-top:15px;
+           margin-bottom: 25px;
+       }
+
+      .step {
+           display: flex;
+           background-color: #ffffff;
+           border-radius: 10px;
+           padding: 15px;
+           margin-bottom: 5px;
+           box-shadow: 0 0 10px rgba(0,0,0,0.1);
+           width: 95%;
+
+       }
+
+.step > div {
+           flex: 1;
+           /* padding: 10px; */
+       }
+
+.step h2 {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 0;
+    padding: 20px 0 10px 0;
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    width: 100%;
+}
+
+h2 {
+font-size: 20px;
+font-weight: bold;
+text-align: center;
+margin-top: 0;
+padding: 0;
+color: #333;
+margin-bottom: 5px;
+width: 100%;
+}
+
+.step1, .step2{
+    background-color: rgba(255, 204, 188, 0.8);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    width: 95%;
+}
+
+   .step1 {
+    /* background-color: #ffd685; /*#f8d7da; /* Light red */
+    height: 320px;
+    padding: 5px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: rgba(255, 214, 133, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .step1 p {
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .step2 {
+     height: auto;
+     width: auto;
+     /* padding: 5px 5px; */
+   }
+
+   .step2 button {
+    background-color: #ff6347;
+    color: white;
+
+    /* width: auto; */
+    align-self: flex-end;
+  }
+
+  .step2 .left button {
+    right: 7px;
+    bottom: 180px;
+    margin-top: 0px;
+    padding: 5px 10px;
+    font-size: 14px;
+    width: auto;
+
+  }
+
+  .step1 .left p  {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 5px;
+  }
+
+  .step1 .input-container input {
+    font-size: 16px;
+  }
+  .step1 .left {
+ display: flex;
+ flex-direction: column;
+ justify-content: flex-start;
+}
+.step1 .left p {
+ margin-bottom: 5px;
+ margin-top: 0;
+}
+.step1 .left input,
+.step1 .left button {
+ margin-top: 0;}
+
+
+.step1 .input-container {
+
+display: flex;
+align-items: center;
+align-items: flex-start;
+gap: 10px; /* Add space between elements */
+}
+}
+.step1 .input-container input {
+ flex-grow: 1;
+ margin-right: 10px;
+}
+.step1 .input-container button {
+ flex-shrink: 0;
+}
+
+  #result1 {
+  margin-top: 5px;
+  height: 180px;
+  width: 90%;
+  background-color: rgba(200, 230, 201, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  /* height: 200px; /* Increased from 150px for more space */
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  align-self: center;
+}
+
+
+  .steps-container .right-step .step3 {
+      min-height: 700px !important;
+      max-height: 700px !important;
+      position: relative;
+      overflow-y: auto;
+      /* max-height: 80vh; */
+  }
+  .step3 .left button {
+      margin-bottom: 0;}
+
+  .step3 {
+    padding-top: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: calc(100% - 40px);
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-top: 0;
+}
+
+.step3 h2 {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    margin-top: 5px !important;
+    margin-bottom: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.step3 .left p {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 5px !important; /* Eliminate default top margin */
+    margin-bottom: 5px;
+}
+
+#result {
+    /* min-height: 67%; */
+    height: 300px !important;
+    margin-top: 0 !important;
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 90%;
+    background-color: rgba(200, 230, 201, 0.5);
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    align-self: center;
+}
+.steps-container .right-step {
+    height: 80vh;
+}
+
+
+.step3 > div {
+    padding: 10px;
+}
+
+.step3 .left button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    gap: 20px;
+}
+
+.step3 .left button:hover {
+    background-color: #45a049;
+}
+
+
+textarea, input, select, button {
+    margin: px 0;
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+       button {
+           background-color: #4CAF50;
+           color: white;
+           cursor: pointer;
+       }
+       button:hover {
+           background-color: #45a049;
+       }
+       .result {
+           background-color: rgba(200, 230, 201, 0.9);
+           /* padding: 30px; */
+           border-radius: 10px;
+           font-size: 14px;
+           overflow-y: auto;
+           margin-top: 5px;
+           width: 30%;
+           font-size: 16px;
+       }
+       .highlight {
+           background-color: #ffff00;
+       }
+       input[type="text"] {
+           width: 50%;
+           padding: 6px;
+           border: 1px solid #ccc;
+           border-radius: 4px;
+           resize: vertical;
+           overflow-y: auto;
+       }
+
+       button {
+           width: auto;
+           padding: 10px 20px;
+           font-size: 16px;
+           border: none;
+           border-radius: 5px;
+           background-color: #4CAF50;
+           color: white;
+           cursor: pointer;
+           transition: background-color 0.3s;
+       }
+
+       button:hover {
+           background-color: #45a049;
+       }
+
+       select#n {
+           width: 150px;
+           padding: 4px 5px;
+           font-size: 16px;
+           /* display: block; */
+           display: inline-block;
+           margin-right: 30px;
+           margin-left: 20px
+       }
+       .extra-buttons button::after {
+           content: '→';
+           font-size: 18px;
+
+  }
+
+       .extra-buttons {
+           position: fixed;
+           top: 10px;
+           right: 10px;
+           z-index: 100;
+           width: auto;
+           clear: both;
+           margin: 0;
+           padding: 0;
+
+       }
+       .extra-buttons button {
+           font-size: 12px;
+           padding: 3px 7px;
+       }
+
+            .sentence-inputs {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                flex-wrap: nowrap;
+                margin-bottom: 10px;
+            }
+            .sentence-inputs textarea {
+           width: 30%;
+           margin: 0 7px;
+           height: 100px;
+       }
+       .step2 .left {
+           position: relative;
+           /* display: flex; */
+           flex-direction: column;
+       }
+       .step2  button {
+
+           align-self: flex-end;
+           margin-right:260px;
+       }
+
+
+
+       .step2 textarea {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+
+       .prediction-box {
+               display: inline-block;
+               padding: 10px;
+               margin: 10px;
+               border: 2px solid #ccc;
+               border-radius: 8px;
+               background-color: #f9f9f9;
+               text-align: center;
+               box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+               min-width: 150px;
+           }
+
+           .highlighted-word {
+               font-weight: bold;
+               color: yellow;
+           }
+
+           .highlight-yellow {
+               color: yellow;
+           }
+
+           .highlight-blue {
+               color: blue;
+           }
+
+           .highlight-red {
+               color: red;
+           }
+           .sentence-inputs {
+               display: flex;
+               flex-direction: row;
+               justify-content: space-between;
+               align-items: flex-start;
+               flex-wrap: nowrap;
+           }
+           .sentence-input {
+               width: calc(20% - 10px); /* Adjusts width accounting for margin */
+               margin: 0 5px; /* Spacing between text areas */
+           }
+
+
+
+           #sentence1, #sentence2, #sentence3, #sentence5{
+               width: 35%;
+               height: 120px;
+           }
+           .larger-textbox {
+               width: 20%;
+               height: 120px;
+           }
+
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.steps-container {
+    display: grid;
+    grid-template-columns: 1.5fr 2.5fr;
+    gap: 20px;
+    width: 100%;
+    margin: 0 auto;
+    align-items: flex-start;
+}
+
+.left-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.step1, .step2 {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.step2 {
+    background-color: rgba(255, 255, 255, 0.8);
+    max-height: 300px;
+}
+
+
+.right-step {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#sentence5 {
+    background-color: #e6e6fa;
+    color: #333;
+    border: 1px solid #ccc;
+}
+.note {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #666;
+    text-align: left;
+}
+
+
+
+
+    </style>
+</head>
+<body>
+  <svg style="height:0;width:0;position:absolute;" aria-hidden="true" focusable="false">
+      <defs>
+          <marker id="arrowhead" markerWidth="5" markerHeight="5"  // Smaller marker box
+          refX="0" refY="2.5" orient="auto">  // Adjust refY to half of markerHeight
+              <polygon points="0 0, 5 2.5, 0 5" fill="black" />  // Coordinates for a thinner arrowhead
+          </marker>
+      </defs>
+  </svg>
+
+
+  <!-- //How computer guesses what word is next -->
+    <h1>How Does an N-gram Model Guess What Word Comes Next?</h1>
+    <div class="steps-container">
+        <div class="left-steps">
+            <!-- <h2>Step 1: Test the Prediction</h2> -->
+            <div class="step step1 ">
+                <div class="left">
+                  <h2>Step 1:  Test N-gram Without Prior Context</h2>
+                    <p>Type the beginning of a sentence to see how the model performs without prior data:</p>
+                    <div class="input-container">
+                        <input type="text" id="input_sentence" placeholder="e.g. The sky is" autocomplete="off">
+                        <button onclick="testPrediction()">Guess the Next Word </button>
+                    </div>
+                </div>
+                <div id="result1" class="result">
+                    <p>Test results will appear here.</p>
+                </div>
+            </div>
+
+            <div class="step step2">
+                <div class="left">
+                  <h2>Step 2: Enter 3 Sentences to Help the Model Learn from Your Context</h2>
+                  <small class="note">
+            Note: you can use only one box to add your sentence. Feel free to add more sentences or paragraphs to the model. Your sentences help the model learn patterns in how words follow each other, improving its ability to guess the next word.
+        </small>
+                    <div class="sentence-inputs">
+                        <textarea id="sentence1" class="larger-textbox" placeholder="e.g. The sky is blue and yellow ..." autocomplete="off"></textarea>
+                        <textarea id="sentence2" class="larger-textbox" placeholder="e.g. The water is blue and the sky was clear ..." autocomplete="off"></textarea>
+                        <textarea id="sentence3" class="larger-textbox" placeholder="e.g. The sky is red and orange ..." autocomplete="off"></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="right-step">
+
+            <div class="step step3">
+    <div class="left">
+        <h2>Step 3: Choose N-gram Size and Test with Added Context</h2>
+        <p>Select the N-gram size for the next word prediction:</p>
+        <small class="note">
+          <strong> N </strong> in <strong>N-gram </strong> tells the model to look at the N-1 last words (<span style="background-color: yellow;"> this is called the <strong>context</strong></span>) from the incomplete sentence you typed in Step 1 to guess the next one. For example, if you pick 2 (a bigram), the model looks at the last word as a clue (which is 1 word) to predict the upcoming word.
+        </small>
+        <select id="n" onchange="updateNgramSize()">
+            <option value="2">2 (Bigram)</option>
+            <option value="3">3 (Trigram)</option>
+            <option value="4">4 (4-gram)</option>
+        </select>
+        <button onclick="analyzeSentences()">Guess the Next Word!</button>
+        <button onclick="displayNextPrediction()">Generate Examples</button>
+    </div>
+    <div id="result" class="result">
+        <p>Test results will appear here.</p>
+    </div>
+</div>
+
+        </div>
+    </div>
+
+    <div class="extra-buttons">
+      <span>Finish</span>
+
+            <button type="button" id="exit-button" onclick="openModal()"></button>
+
+        </div>
+
+        <!-- Modal Structure -->
+    <div id="quizModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Share Your Thoughts Before You Leave</h2>
+
+
+            <p>Do you think it's important for AI tools and tools like n-gram models to be transparent about how they make predictions? Why or why not?</p>
+            <textarea id="userFeedback" rows="4" style="width: 100%;"></textarea>
+
+            <p>Now, can you explain how the N-gram model decide what word come next? </p>
+        <textarea id="modelThinkingFeedback" rows="4" style="width: 100%;"></textarea>
+            <button type="button" onclick="submitFeedback()">Submit</button>
+        </div>
+    </div>
+
+
+
+    <script>
+    var currentNgramSize = 2; // Default to bigram
+
+  // Retrieve URL parameters to get user_file
+  const urlParams = new URLSearchParams(window.location.search);
+  var userFile = urlParams.get('user_file');
+  var currentNgramContext = ''; // Global variable to hold the current n-gram context
+  var latestGuess = ''; // Global variable to hold the latest guess
+
+  var predictionGenerator; // This will store the generator for predictions
+
+  function testPrediction() {
+      const input_sentence = document.getElementById('input_sentence').value;
+      if (!input_sentence.trim()) {
+          alert("Please enter an incomplete sentence to test the prediction!");
+          return;
+      }
+      const resultDiv = document.getElementById('result1');
+      resultDiv.innerHTML = `<p>I can't guess yet because I don't have any examples to learn from. Please go to Step 2 and give me some sentences. This helps me understand the context better. For example, if you wrote <span style="background-color: yellow;">"the sky is"</span> in this step, you should add at least sentence like <span style="background-color: yellow;">"the sky is blue" </span> in Step 2. After that, try guessing again in Step 3!</p>`;
+
+  }
+
+
+
+
+  function analyzeSentences() {
+      const sentences = [
+          document.getElementById('sentence1').value,
+          document.getElementById('sentence2').value,
+          document.getElementById('sentence3').value,
+          // document.getElementById('sentence5').value // Include the optional sentence
+      ].filter(sentence => sentence.trim() !== '');
+
+      const n = parseInt(document.getElementById('n').value);
+      const input_sentence = document.getElementById('input_sentence').value;
+
+      updateNgramContext();
+      fetch('/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({sentences, n, input_sentence, user_file: userFile}),
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.error) {
+              alert(data.error);
+          } else {
+              displayResult(data);
+              prepareDiagram(data);
+          }
+      });
+  }
+
+  function displayResult(data) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "<h2>Here's what the model thinks:</h2>";
+      resultDiv.innerHTML += `<p>The context: <span class="highlight">${data.highlight}</span></p>`;
+
+      if (data.predictions.length > 0) {
+          const svgNamespace = "http://www.w3.org/2000/svg";
+          const svg = document.createElementNS(svgNamespace, "svg");
+          const startX = 150; // X position of the context circle, shifted right
+          const startY = 50; // Y position of the context circle
+          const predX = 400; // X position for all predictions, shifted further right
+          const spacing = 60; // Space between nodes
+          const shiftUp = 20; // How much to shift up the right nodes
+          const calculatedHeight = startY + (data.predictions.length * spacing) - shiftUp;
+
+          svg.setAttribute("width", "600"); // Adjust width dynamically for centering
+          svg.setAttribute("height", calculatedHeight.toString()); // Set height dynamically
+
+          createCircle(svg, svgNamespace, startX, startY, data.highlight); // Central node
+
+          let explanationHtml = "<ul>";
+          data.predictions.forEach((pred, index) => {
+              const predY = startY + (index * spacing) - shiftUp; // Calculate Y position based on index and shift upward
+              createCircle(svg, svgNamespace, predX, predY, pred.word); // Right side nodes
+            //  createArrow(svg, svgNamespace, startX, startY, predX, predY); // Arrows from central to right nodes
+            const radius1 = createCircle(svg, svgNamespace, startX, startY, data.highlight);
+            const radius2 = createCircle(svg, svgNamespace, predX, predY, pred.word);
+
+            createArrow(svg, svgNamespace, startX, startY, predX, predY, radius1, radius2);
+
+              createProbability(svg, svgNamespace, startX, startY, predX, predY, `${(pred.probability * 100).toFixed(2)}%`); // Labels on arrows
+              explanationHtml += `<li>${pred.word} (${(pred.probability * 100).toFixed(2)}% sure) - ${data.highlight} ${pred.word} appears ${pred.count} times</li>`;
+          });
+
+          const diagramContainer = document.createElement("div");
+          diagramContainer.style.display = "flex";
+          diagramContainer.style.justifyContent = "center";
+          diagramContainer.style.marginTop = "20px";
+          diagramContainer.appendChild(svg);
+
+          resultDiv.appendChild(diagramContainer);
+
+          explanationHtml += "</ul>";
+          explanationHtml += `<p><strong>How it works:</strong>  The n-gram model starts by looking at your incomplete sentence from Step 1 and identifies the last N−1 words as the 'context'—for example, here<span style="background-color: yellow;"> '${data.highlight}' </span>. Think of this context as a clue. Then, the model reviews the sentences you provided in Step 2 to find patterns where your context (<span style="background-color: yellow;"> '${data.highlight}' </span>) is directly followed by another word. It counts how many times each subsequent word occurs after your context and predicts the next word based on which one appears most frequently. If there’s a tie (multiple words occur with the same highest frequency), the model chooses one at random. In fact this<span style="background-color: yellow;"> N </spn> helps the computer make smart guesses about what word might logically follow </p>`;
+
+          const incompleteSentence = document.getElementById('input_sentence').value;
+          let highestPrediction = data.predictions.reduce((a, b) => (a.probability > b.probability) ? a : b);
+          explanationHtml += `<p><strong>I guess your sentence is:</strong> "${incompleteSentence} ${highestPrediction.word}" since "${highestPrediction.word}" has the highest frequency of appearance after your "${data.highlight}" context.</p>`;
+
+          resultDiv.innerHTML += explanationHtml;
+      } else {
+          resultDiv.innerHTML += "<p>No predictions available.</p>";
+      }
+  }
+
+
+
+function appendPredictionDetails(svg, ns, x, y, pred) {
+    const textElement = document.createElementNS(ns, "text");
+    textElement.setAttribute("x", x + 20);
+    textElement.setAttribute("y", y + 40);
+    textElement.setAttribute("text-anchor", "start");
+    textElement.textContent = `Next word: "${pred.word}" with ${pred.count} occurrences (${(pred.probability * 100).toFixed(2)}% probability)`;
+    svg.appendChild(textElement);
+}
+
+function createCircle(svg, ns, x, y, text, strokeColor = 'black', fillColor = 'white', textColor = 'black') {
+    const padding = 10;
+    const textWidth = measureText(text); // Measure the text width
+    const radius = Math.max(20, (textWidth / 2) + padding); // Calculate the radius dynamically
+
+    const circle = document.createElementNS(ns, "circle");
+    circle.setAttribute("cx", x);
+    circle.setAttribute("cy", y);
+    circle.setAttribute("r", radius);
+    circle.setAttribute("fill", fillColor);
+    circle.setAttribute("stroke", strokeColor);
+
+    const textElement = document.createElementNS(ns, "text");
+    textElement.setAttribute("x", x);
+    textElement.setAttribute("y", y + (radius / 2));
+    textElement.setAttribute("text-anchor", "middle");
+    textElement.setAttribute("fill", textColor);
+    textElement.textContent = text;
+
+    svg.appendChild(circle);
+    svg.appendChild(textElement);
+
+    return radius; // Return the radius for dynamic adjustments
+}
+
+
+
+
+  function createArrow(svg, ns, x1, y1, x2, y2, radius1, radius2) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const angle = Math.atan2(dy, dx);
+
+      // Adjust the arrow's start and end points based on the radii
+      const startX = x1 + radius1 * Math.cos(angle);
+      const startY = y1 + radius1 * Math.sin(angle);
+      const endX = x2 - radius2 * Math.cos(angle);
+      const endY = y2 - radius2 * Math.sin(angle);
+
+      const arrow = document.createElementNS(ns, "line");
+      arrow.setAttribute("x1", startX);
+      arrow.setAttribute("y1", startY);
+      arrow.setAttribute("x2", endX);
+      arrow.setAttribute("y2", endY);
+      arrow.setAttribute("stroke", "black");
+      arrow.setAttribute("stroke-width", "2");
+      arrow.setAttribute("marker-end", "url(#arrowhead)");
+
+      svg.appendChild(arrow);
+  }
+
+
+
+  function measureText(text) {
+      let canvas = document.createElement("canvas");
+      let context = canvas.getContext("2d");
+      context.font = "16px Arial";
+      return context.measureText(text).width;
+  }
+
+
+  function createProbability(svg, ns, x1, y1, x2, y2, text) {
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+      const textElement = document.createElementNS(ns, "text");
+      textElement.setAttribute("x", midX);
+      textElement.setAttribute("y", midY - 10); // Adjust vertical position to be above the arrow
+      textElement.setAttribute("text-anchor", "middle");
+      textElement.textContent = text;
+      svg.appendChild(textElement);
+  }
+
+
+
+
+  function prepareDiagram(data) {
+    function* predictionYielder(predictions) {
+        let allPredictions = [];
+        for (let pred of predictions) {
+            for (let i = 0; i < pred.count; i++) {
+                allPredictions.push({ ngramContext: currentNgramContext, word: pred.word, probability: pred.probability });
+            }
+        }
+        shuffleArray(allPredictions); // Shuffle to randomize order of examples
+        for (let item of allPredictions) {
+            yield item;
+        }
+    }
+    predictionGenerator = predictionYielder(data.predictions);
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+        [array[i], array[j]] = [array[j], array[i]]; // swap elements
+    }
+}
+
+
+  // Global definitions for style
+  const fontSize = "16px";
+  const fontFamily = "Arial";
+
+  function measureText(text) {
+      let canvas = document.createElement("canvas");
+      let context = canvas.getContext("2d");
+      context.font = `${fontSize} ${fontFamily}`;
+      return context.measureText(text).width;
+  }
+
+
+  function displayNextPrediction() {
+      const svgNamespace = "http://www.w3.org/2000/svg";
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = ''; // Clear previous content
+
+      if (!predictionGenerator) {
+          predictionGenerator = predictionYielder(data.predictions);
+      }
+
+      const result = predictionGenerator.next();
+      if (!result.done) {
+          const pred = result.value;
+
+          // Fetch the user's incomplete sentence from Step 1
+          const incompleteSentence = document.getElementById('input_sentence').value;
+
+          // Text for each section
+          const ngramText = 'N-gram: ' + pred.ngramContext;
+          const guessText = `Word Guess: ${pred.word}`;
+          const combinedText = `${incompleteSentence} ${pred.word}`; // Use the full incomplete sentence with the prediction
+
+          // Dynamic calculation for box sizes
+          const ngramWidth = measureText(ngramText) + 20;
+          const guessWidth = measureText(guessText) + 20;
+          const sentenceWidth = measureText(combinedText) + 20; // Calculate width based on the full sentence
+
+          // Set the SVG width and height dynamically based on the text length
+          const svgWidth = ngramWidth + guessWidth + sentenceWidth + 140;
+          const svgHeight = 50;
+
+          const diagram = document.createElementNS(svgNamespace, 'svg');
+          diagram.setAttribute('width', svgWidth);
+          diagram.setAttribute('height', svgHeight);
+
+          // Append elements with a white background and black border
+          appendSvgElement(diagram, svgNamespace, 'rect', 0, 0, ngramWidth, svgHeight, 'white', 'black', ngramText, 5, 35);
+          appendSvgElement(diagram, svgNamespace, 'rect', ngramWidth, 0, guessWidth, svgHeight, 'white', 'black', guessText, ngramWidth + 5, 35);
+          appendSvgElement(diagram, svgNamespace, 'rect', ngramWidth + guessWidth, 0, sentenceWidth, svgHeight, 'white', 'black', combinedText, ngramWidth + guessWidth + 5, 35);
+
+          resultDiv.appendChild(diagram);
+      } else {
+          alert('No more predictions to show!');
+          predictionGenerator = predictionYielder(data.predictions);
+          displayNextPrediction();
+      }
+  }
+
+
+
+  // Modified to include stroke parameter for border color
+ function appendSvgElement(svg, svgNamespace, type, x, y, width, height, fill, stroke, text, textX, textY) {
+     const element = document.createElementNS(svgNamespace, type);
+     element.setAttribute('x', x);
+     element.setAttribute('y', y);
+     element.setAttribute('width', width);
+     element.setAttribute('height', height);
+     element.setAttribute('fill', fill);
+     element.setAttribute('stroke', stroke);
+     element.setAttribute('stroke-width', '2');
+     svg.appendChild(element);
+
+     const textElement = document.createElementNS(svgNamespace, 'text');
+     textElement.setAttribute('x', textX);
+     textElement.setAttribute('y', textY);
+     textElement.setAttribute('fill', '#000');
+     textElement.textContent = text;
+     svg.appendChild(textElement);
+ }
+
+  // Adjust drawArrow to slightly refine where the arrows point
+  function drawArrow(svg, svgNamespace, x1, y1, x2, y2) {
+      const arrow = document.createElementNS(svgNamespace, 'line');
+      arrow.setAttribute('x1', x1);
+      arrow.setAttribute('y1', y1);
+      arrow.setAttribute('x2', x2);
+      arrow.setAttribute('y2', y2);
+      arrow.setAttribute('stroke', 'black');
+      arrow.setAttribute('stroke-width', '2');
+      arrow.setAttribute('marker-end', 'url(#arrowhead)');
+      svg.appendChild(arrow);
+  }
+
+
+
+
+  function updateNgramContext() {
+      const input_sentence = document.getElementById('input_sentence').value;
+      const n = parseInt(document.getElementById('n').value);
+      const words = input_sentence.split(' ');
+      currentNgramContext = words.slice(-n).join(' ');
+  }
+
+  document.getElementById('input_sentence').addEventListener('input', updateNgramContext);
+  document.getElementById('n').addEventListener('change', updateNgramContext);
+
+  function clearInput(inputId) {
+      document.getElementById(inputId).value = '';
+  }
+
+  function clearAllSentences() {
+      for (let i = 1; i <= 3; i++) {
+          clearInput(`sentence${i}`);
+      }
+  }
+
+function submitFeedback() {
+    var feedback = document.getElementById('userFeedback').value;
+    var modelThinkingFeedback = document.getElementById('modelThinkingFeedback').value;
+
+    if (feedback.trim() === '' || modelThinkingFeedback.trim() === '') {
+        alert('Please provide feedback for both questions before submitting.');
+        return;
+    }
+
+    // Prepare the data object to include the new field
+    const feedbackData = {
+        userFile: userFile,
+        generalFeedback: feedback,
+        modelThinkingFeedback: modelThinkingFeedback
+    };
+
+    fetch('/submit_feedback', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(feedbackData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Trigger download and delete operation
+            fetch('/download_and_delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userFile})
+            })
+            .then(response => {
+                // Handle file download
+                return response.blob();
+            })
+            .then(blob => {
+                // Create a URL for the blob
+                let url = window.URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = userFile;
+                document.body.appendChild(a); 
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                alert("Thank you for your feedback and your file has been downloaded.");
+                window.location.href = '/';
+            })
+            .catch(error => {
+                console.error('Error downloading the file:', error);
+                alert('Failed to download the file.');
+            });
+        } else {
+            alert("Failed to submit feedback: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to submit feedback due to an error.');
+    });
+}
+
+
+
+    function openModal() {
+        var modal = document.getElementById('quizModal');
+        if (modal) {
+            modal.style.display = "block";
+
+            var closeButton = document.querySelector('.modal .close');
+            closeButton.onclick = function() {
+                modal.style.display = "none";
+            };
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            };
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+    });
+
+
+
+    </script>
+
+    </script>
+</body>
+</html>

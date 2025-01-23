@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-gram Adventure: Warm-up</title>
+    <style>
+
+        body {
+            font-family:   'Comic Sans MS', 'Comic Neue', sans-serif; /*'Comic Sans MS', cursive, sans-serif;  'Open Sans', Arial, sans-serif;  Fun font-- Not phone friendly */
+            background-color: #d1f9fa; /* Light blue background e0f7fa*/
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #00796b;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .left {
+            flex: 1;
+            background-color: #ffd685;
+            border-radius: 10px;
+            padding: 10px;
+            margin-right: 25px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .left h2 {
+            text-align: center;
+        }
+        .right {
+            flex: 2;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        h2 {
+            color: #00796b;
+        }
+
+        /* Flexbox for inputs */
+        .input-container {
+            display: flex;
+
+            align-items: center;
+            margin-top: 10px; /* Add some space above */
+        }
+        .input-container input{
+          font-size: 18px;
+        }
+        .input-container label {
+            margin-right: 10px;
+        }
+        input, select, button {
+            width: 90%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 10px 20px;
+            width: auto;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .mascot {
+            width: 100px;
+            margin: 20px;
+        }
+
+        .logo-img {
+            width: 100%;
+            max-width: 200px;
+            margin-bottom: 90px;
+            margin:0 auto;
+            display: block;
+        }
+        select {
+            width: auto;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+        }
+        .next-button-container {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            max-width: 1200px;
+            padding-right: 20px;
+        }
+
+        .next-button {
+            margin-top: 20px;
+            /* align-self: flex-end; /* Align to the right */
+           /* left: -100; */
+           background-color: #4CAF50;
+           color: white;
+
+        }
+        .next-button:disabled {
+            background-color: #cccccc; /* Disabled color */
+            color: #666666;
+            cursor: not-allowed;
+        }
+
+        .button-start {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 10px 20px;
+            width: auto;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .button-predict {
+            margin-top: 20px;
+            float: right;
+        }
+
+        /* Prediction result container */
+        #predictionResult {
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+            font-size: 18px;
+        }
+
+        /* Modal Style */
+        #questionModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #questionModalContent {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+
+        }
+
+
+
+    </style>
+</head>
+<body>
+    <!--<h1>N-gram Adventure</h1> -->
+    <h1> Next Word Adventure</h1>
+    <div class="container">
+        <div class="left">
+          <img src="{{ url_for('static', filename='images/177.jpg') }}" alt="User Info" class="logo-img">
+          <h2>Student Information</h2>
+            <div class="input-container">
+                <label for="userName">First Name and Last Name Intiail:</label>
+                <input type="text" id="userName" placeholder="e.g. John S" autocomplete="off" required/>
+            </div>
+            <div class="input-container">
+                <label for="ageRange" required>Grade:</label>
+                <select id="ageRange">
+                  <option value="" selected disabled>--Select Grade--</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <!-- <option value="12">12</option>
+
+                              <option value="17">17</option> -->
+
+                </select>
+            </div>
+            <button onclick="startGame()" class="button-start">Let's play!</button>
+        </div>
+
+
+        <div class="right">
+          <h2>Welcome to the Next Word Adventure!</h2>
+<p><strong>Next Word Adventure</strong> is an educational web application that teaches how computers predict the next word in a sentence. The Next Word Adventure uses something called an <strong>N-gram</strong> model to guess what word comes next. This is similar to how you might guess the next word in a story you're reading.</p>
+
+
+
+        <p>Pick an example from the list of unfinished sentences below and click on the <strong>Guess the Next Word</strong> button to see the computer's suggestion for the next word.</p>
+
+
+
+          <label for="sentenceSelect">Pick a sentence:</label>
+          <select id="sentenceSelect">
+              <option value="">--Choose an unfinished sentence--</option>
+              <option value="The Earth is">"The Earth is ..." </option>
+              <option value="The Stegosaurus's brain was as small as a">"The Stegosaurus's brain was as small as a ..." </option>
+              <option value="Giraffes have the same number of neck bones as">"Giraffes have the same number of neck bones as ..." </option>
+              <option value="The most popular sport in the world is">"The most popular sport in the world is ..." </option>
+              <option value="Anime characters often have colorful">"Anime characters often have colorful ..." </option>
+          </select>
+
+          <button onclick="showPrediction()" class="button-predict">Guess the Next Word</button>
+          <div id="predictionResult">
+              <p id="completedSentence">Your result will show up here ...</p>
+          </div>
+      </div>
+    </div>
+<div class="next-button-container">
+    <button class="next-button" onclick="goToNextPage()">Next</button>
+</div>
+    <!-- Modal Structure -->
+    <div id="questionModal">
+        <div id="questionModalContent">
+            <h2>How do you think the N-gram guessed the next word? What information do you think it used?</h2>
+            <textarea id="studentAnswer" rows="4" style="width: calc(100% - 40px); padding: 10px; margin-right: 20px;"></textarea>
+            <br><br>
+            <button onclick="submitAnswer()">Submit</button>
+        </div>
+    </div>
+
+    <script>
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Document loaded. Disabling sections...");
+    disableRightSection();
+    disableNextButton();
+});
+
+function disableRightSection() {
+    let rightSection = document.querySelector('.right');
+    if (rightSection) {
+        rightSection.style.pointerEvents = 'none';
+        rightSection.style.opacity = '0.5';
+        console.log("Right section disabled.");
+    } else {
+        console.error("Right section not found!");
+    }
+}
+
+function disableNextButton() {
+    let nextButton = document.querySelector('.next-button');
+    if (nextButton) {
+        nextButton.disabled = true;
+        console.log("Next button disabled.");
+    } else {
+        console.error("Next button not found!");
+    }
+}
+
+function enableRightSectionAndNextButton() {
+    let rightSection = document.querySelector('.right');
+    let nextButton = document.querySelector('.next-button');
+
+    if (rightSection && nextButton) {
+        rightSection.style.pointerEvents = 'auto';
+        rightSection.style.opacity = '1';
+        nextButton.disabled = false;
+        console.log("Right section and Next button enabled.");
+    } else {
+        console.error("Failed to find elements to enable.");
+    }
+}
+
+let userFilename = '';
+
+function startGame() {
+    const userName = document.getElementById('userName').value.trim();
+    const ageRange = document.getElementById('ageRange').value;
+
+    if (userName === "" || ageRange === "") {
+        alert('Please enter all required information before starting the game.');
+        return;
+    }
+
+    const userData = {
+        userName,
+        ageRange,
+        selectedSentence: document.getElementById('sentenceSelect').value
+    };
+
+    console.log("Starting game with data:", userData);
+
+    fetch('/start_game', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Response from server:", data);
+        if (data.success) {
+            userFilename = data.filename;
+            localStorage.setItem('userFile', data.filename);
+            alert('Game started!');
+            enableRightSectionAndNextButton();
+        } else {
+            alert('Error: ' + data.message);
+            disableRightSection();
+            disableNextButton();
+        }
+    })
+    .catch(error => {
+        alert('Failed to start the game: ' + error);
+        console.error('Catch block error:', error);
+        disableRightSection();
+        disableNextButton();
+    });
+}
+
+// The functions showPrediction, goToNextPage, and submitAnswer remain unchanged
+
+function showPrediction() {
+    const sentence = document.getElementById('sentenceSelect').value;
+    const completedSentence = document.getElementById('completedSentence');
+    let prediction = '';
+
+    // Define example predictions based on the selected sentence
+    switch (sentence) {
+        case "The Earth is":
+            prediction = "round";
+            break;
+        case "The Stegosaurus's brain was as small as a":
+            prediction = "walnut";
+            break;
+        case "Giraffes have the same number of neck bones as":
+            prediction = "humans";
+            break;
+        case "The most popular sport in the world is":
+            prediction = "soccer";
+            break;
+        case "Anime characters often have colorful":
+            prediction = "hair";
+            break;
+        default:
+            return;
+    }
+
+    completedSentence.textContent = `${sentence} ${prediction}...`;
+    completedSentence.style.color = "#000";
+    completedSentence.style.fontStyle = "normal";
+
+    const userFile = localStorage.getItem('userFile');
+    if (userFile) {
+        fetch('/save_example', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                filename: userFile,
+                sentence: sentence,
+                prediction: prediction
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Failed to save example:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+function goToNextPage() {
+    document.getElementById('questionModal').style.display = 'block';
+}
+
+
+function submitAnswer() {
+    const answer = document.getElementById('studentAnswer').value;
+    if (answer.trim() === '') {
+        alert('Please provide an answer before moving to the next step.');
+        return;
+    }
+    const userFile = localStorage.getItem('userFile');
+    if (userFile) {
+        fetch('/submit_feedback', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                userFile,
+                generalFeedback: answer,
+                modelThinkingFeedback: 'Feedback about how the model works interaction with first page'  //Q1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = `/index?user_file=${userFile}`;
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => alert('Failed to save answer: ' + error));
+    } else {
+        alert('Please start the game first.');
+    }
+}
+
+
+          </script>
+      </body>
+      </html>
