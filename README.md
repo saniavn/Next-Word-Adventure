@@ -6,5 +6,5 @@ Next Word Adventure is a software tool that was designed to help middle school s
 https://ngramadventure.pythonanywhere.com/
 
 
-## Contributions:
+## Acknowledgments
 I would like to thank Hanif Vahedian Movahed and Rachel Chenard for their valuable feedback on user interface.
