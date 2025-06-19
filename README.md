@@ -7,4 +7,6 @@ https://ngramadventure.pythonanywhere.com/
 
 
 ## Acknowledgments
-I would like to thank Hanif Vahedian Movahed and Rachel Chenard for their valuable feedback on user interface.
+This project was independently developed and piloted by Saniya Vahedian Movahed. I would like to thank Hanif Vahedian Movahed and Rachel Chenard for their valuable feedback on user interface.
+
+
