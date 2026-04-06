@@ -10,17 +10,22 @@ Next Word Adventure helps middle school students understand how predictive text 
 
 **Step 2 (Adding Context)** was redesigned for better intuition, flexibility, and visual clarity.
 
-### Before
-
-Three fixed text boxes limited users to exactly three sentences and cluttered the layout.
-
-![Original Step 2 UI](static/UI/original_ui.png)
-
-### After
-
-Single input + scrollable history with integrated controls and responsive spacing.
-
-![Updated Step 2 UI](static/UI/updated_ui.png)
+<table>
+<tr>
+  <td>
+    **Before**<br>
+    <small>Three fixed text boxes limited users to exactly three sentences and cluttered the layout.</small>
+  </td>
+  <td>
+    **After**<br>
+    <small>Single input + scrollable history with integrated controls and responsive spacing.</small>
+  </td>
+</tr>
+<tr>
+  <td><img src="static/UI/original_ui.png" width="500" alt="Original Step 2 UI"></td>
+  <td><img src="static/UI/updated_ui.png" width="500" alt="Updated Step 2 UI"></td>
+</tr>
+</table>
 
 **Key improvements:**
 
