@@ -12,10 +12,9 @@ import uuid
 from flask import send_file, after_this_request
 
 
-
 # Download necessary resources
 nltk.download('punkt', quiet=True)
-
+nltk.download('punkt_tab', quiet=True) ## new 
 app = Flask(__name__)
 # Define the directory to save user files
 USER_DATA_DIR = 'user_data'
@@ -144,60 +143,85 @@ def save_example():
     else:
         return jsonify({'success': False, 'error': 'File not found'})
 
+
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     data = request.get_json()
     user_file = data.get('user_file')
-    sentences = data.get('sentences', [])
+    current_sentences = data.get('sentences', [])
     n = int(data.get('n', 2))
-    input_sentence = data.get('input_sentence', '')
+    input_sentence = data.get('input_sentence', '').strip()
 
-    if len(sentences) == 0:
+    all_training_sentences = []
+
+    # Load previous history
+    if user_file:
+        filepath = os.path.join(USER_DATA_DIR, user_file)
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, 'r') as file:
+                    user_history = json.load(file)
+                    # Gather from all possible history keys
+                    all_training_sentences.extend(user_history.get('step2_inputs', []))
+                    all_training_sentences.extend(user_history.get('selectedSentences', []))
+            except Exception as e:
+                print(f"Error reading history file: {e}")
+
+    # add current input sentences to the training data
+    all_training_sentences.extend(current_sentences)
+    
+    # clean up empty strings and duplicates
+    all_training_sentences = list(set([s for s in all_training_sentences if s.strip()]))
+
+    if not all_training_sentences:
         return jsonify({
-            "error": "Oops! We need some sentences to learn from first. Please type a few in Step 2!",
-            "explanation": "Without training data, the model can't guess the next word. Let's get started!"
+            "error": "I don't have any sentences in my memory yet!",
+            "explanation": "Please add some sentences in Step 2 so I can learn."
         }), 400
 
-    text = ' '.join(sentences)
-    ngram_model = NGramModel(text, n)
+    # train the model
+    full_text = ' '.join(all_training_sentences)
+    ngram_model = NGramModel(full_text, n)
 
     words = nltk.word_tokenize(input_sentence.lower())
-    if len(words) < n - 1:
-        return jsonify({"error": f"Your sentence needs at least {n - 1} words for our guessing game!"}), 400
+    
+    # If the user typed fewer words than N-1, use whatever they typed.
 
-    context = tuple(words[-(n - 1):])
+    context_size = n - 1
+    if len(words) >= context_size:
+        context = tuple(words[-context_size:])
+    else:
+        context = tuple(words) # Fallback for short input
+
     predictions = ngram_model.predict_next_words(context)
 
+    print(f"--- Prediction Debug ---")
+    print(f"Training on {len(all_training_sentences)} sentences.")
+    print(f"Context used: {context}")
+    print(f"Predictions found: {len(predictions)}")
+
+    #save updated history
     if user_file:
         filepath = os.path.join(USER_DATA_DIR, user_file)
         if os.path.exists(filepath):
             with open(filepath, 'r+') as file:
                 user_data = json.load(file)
-                if 'step1_inputs' not in user_data:
-                    user_data['step1_inputs'] = []
-                user_data['step1_inputs'].append(input_sentence)
-                if 'step2_inputs' not in user_data:
-                    user_data['step2_inputs'] = []
-                user_data['step2_inputs'].extend(sentences)
-                if 'step3_results' not in user_data:
-                    user_data['step3_results'] = []
-                user_data['step3_results'].append({
-                    'input_sentence': input_sentence,
-                    'n': n,
-                    'predictions': predictions
-                })
+                # Keep history updated
+                user_data.setdefault('step2_inputs', [])
+                for s in current_sentences:
+                    if s not in user_data['step2_inputs']:
+                        user_data['step2_inputs'].append(s)
+                
                 file.seek(0)
                 json.dump(user_data, file, indent=4)
                 file.truncate()
 
     return jsonify({
         "predictions": predictions,
-        "explanation": f"We used something called {n}-grams to see what word might come next after '{' '.join(context)}'.",
+        "explanation": f"I searched my memory and used the context '{' '.join(context)}' to guess.",
         "highlight": ' '.join(context)
     })
-
-
-
 
 
 ## download and delete user data
