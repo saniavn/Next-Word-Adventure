@@ -32,6 +32,7 @@ Next Word Adventure helps middle school students understand how predictive text 
 - Single input box + scrollable history for **unlimited training data**
 - **Add** button lets students build datasets incrementally
 - Step 1 now uses **entire saved history** for predictions (not just current inputs)
+- Iterative text generation enables a "Keep Guessing" loop to build full sentences word-by-word.
 
 ## Acknowledgments
 
