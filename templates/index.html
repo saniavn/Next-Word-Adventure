@@ -202,7 +202,8 @@
       }
 
       #result {
-        height: 300px !important;
+        flex: none;
+        height: 430px !important;
         margin-top: 0 !important;
         margin-bottom: 20px;
         padding: 10px;
@@ -487,6 +488,27 @@
       .step2 .clear-btn:hover {
         background-color: #d32f2f !important;
       }
+      .continue-adventure-btn {
+        background-color: #2196f3 !important; /* Brighter blue */
+        color: white;
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        display: block;
+        margin: 20px auto;
+        width: 80%;
+        transition:
+          background-color 0.3s,
+          transform 0.1s;
+      }
+
+      .continue-adventure-btn:hover {
+        background-color: #1976d2 !important;
+        transform: scale(1.02);
+      }
     </style>
   </head>
   <body>
@@ -688,17 +710,23 @@
               resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
             } else if (data.predictions && data.predictions.length > 0) {
               let topGuess = data.predictions[0];
+              let tied =
+                data.predictions.length > 1 &&
+                data.predictions[0].probability ===
+                  data.predictions[1].probability;
+
               resultDiv.innerHTML = `
-                    <div style="border: 2px solid #4CAF50; padding: 10px; border-radius: 8px;">
-                        <p><strong>My Guess:</strong> ${input_sentence} <span style="background-color: yellow;">${topGuess.word}</span></p>
-                        <p><small>Probability: ${(topGuess.probability * 100).toFixed(1)}%</small></p>
-                    </div>
-                `;
+              <div style="padding: 10px; border-radius: 8px;">
+            <p><strong>My Guess:</strong> ${input_sentence} <span style="background-color: yellow;">${topGuess.word}</span></p>
+            ${tied ? `<p><small><em>Note: It's a tie! I'm also thinking of "${data.predictions[1].word}". Check Step 3 for the diagram!</em></small></p>` : ""}
+            <p><small>Probability: ${(topGuess.probability * 100).toFixed(1)}%</small></p>
+        </div>
+    `;
             } else {
               resultDiv.innerHTML = `
-                    <p>I don't recognize the pattern <strong>"${input_sentence}"</strong>.</p>
-                    <p>Try adding a sentence like <em>"${input_sentence} ..."</em> in Step 2!</p>
-                `;
+                          <p>I don't recognize the pattern <strong>"${input_sentence}"</strong>.</p>
+                          <p>Try adding a sentence like <em>"${input_sentence} ..."</em> in Step 2!</p>
+                      `;
             }
           });
       }
@@ -795,7 +823,6 @@
               radius1,
               radius2,
             );
-
             createProbability(
               svg,
               svgNamespace,
@@ -805,6 +832,7 @@
               predY,
               `${(pred.probability * 100).toFixed(2)}%`,
             );
+
             explanationHtml += `<li>${pred.word} (${(pred.probability * 100).toFixed(2)}% sure) - ${data.highlight} ${pred.word} appears ${pred.count} times</li>`;
           });
 
@@ -816,17 +844,33 @@
 
           resultDiv.appendChild(diagramContainer);
 
-          explanationHtml += "</ul>";
-          explanationHtml += `<p><strong>How it works:</strong>  The n-gram model starts by looking at your incomplete sentence from Step 1 and identifies the last N−1 words as the 'context'—for example, here<span style="background-color: yellow;"> '${data.highlight}' </span>. Think of this context as a clue. Then, the model reviews the sentences you provided in Step 2 to find patterns where your context (<span style="background-color: yellow;"> '${data.highlight}' </span>) is directly followed by another word. It counts how many times each subsequent word occurs after your context and predicts the next word based on which one appears most frequently. If there’s a tie (multiple words occur with the same highest frequency), the model chooses one at random. In fact this<span style="background-color: yellow;"> N </spn> helps the computer make smart guesses about what word might logically follow </p>`;
-
-          const incompleteSentence =
-            document.getElementById("input_sentence").value;
+          //  Find the highest probability prediction
           let highestPrediction = data.predictions.reduce((a, b) =>
             a.probability > b.probability ? a : b,
           );
-          explanationHtml += `<p><strong>I guess your sentence is:</strong> "${incompleteSentence} ${highestPrediction.word}" since "${highestPrediction.word}" has the highest frequency of appearance after your "${data.highlight}" context.</p>`;
 
-          resultDiv.innerHTML += explanationHtml;
+          //Save it to a global variable so the helper function can find it
+          window.latestTopGuess = highestPrediction.word;
+
+          // Create the button element
+          const continueBtn = document.createElement("button");
+          continueBtn.innerHTML = `Keep Guessing: Add "<strong>${window.latestTopGuess}</strong>" and continue?`;
+          continueBtn.className = "continue-adventure-btn";
+          continueBtn.onclick = keepGuessing;
+
+          resultDiv.appendChild(continueBtn);
+
+          explanationHtml += "</ul>";
+          explanationHtml += `<p><strong>How it works:</strong> The n-gram model starts by looking at your incomplete sentence and identifies the last N-1 words as the context. It then searches the memory for what usually follows.</p>`;
+
+          const incompleteSentence =
+            document.getElementById("input_sentence").value;
+          explanationHtml += `<p><strong>I guess your sentence is:</strong> "${incompleteSentence} ${highestPrediction.word}"</p>`;
+
+          //Hold the text so it doesn't overwrite the SVG/Button it is just appended
+          const textExplanation = document.createElement("div");
+          textExplanation.innerHTML = explanationHtml;
+          resultDiv.appendChild(textExplanation);
         } else {
           resultDiv.innerHTML += "<p>No predictions available.</p>";
         }

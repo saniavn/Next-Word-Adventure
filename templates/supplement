@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Next Word Adventure</title>
+<style>
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Ensure the animated content doesn't overflow */
+            position: relative;
+            font-family: 'Arial', sans-serif; /* Your preferred font */
+            color: #333; /* Dark gray text */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center children */
+            min-height: 100vh;
+            background-color: #d1f9fa; /*#8ca863;*/
+            /*background-image: url('{{ url_for('static', filename='images/back33333.jpg') }}'); */
+            background-repeat: no-repeat; /* Do not repeat the image */
+            background-attachment: fixed;
+            background-size: cover;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+        }
+
+        /* Additional styles for other elements */
+        #main-title {
+            text-align: center;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            color: Black;
+            padding-top: 20px;
+            font-size: 50px;
+            width: 100%;
+        }
+
+        #description {
+            font-size: 20px;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            color: Black;
+            line-height: 1.6;
+            margin-top: 0px;  /* Adds space above the paragraph */
+            padding: 0 20px;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        .paper-link {
+            text-align: center;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            font-size: 16px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            max-width: 900px;
+        }
+
+        .paper-link a {
+            color: #00796b;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .paper-link a:hover {
+            text-decoration: underline;
+        }
+
+        .container-row {
+              display: flex; /* Flex container */
+              justify-content: space-between; /* Space between the containers */
+              align-items: stretch; /* Stretch containers vertically */
+              width: calc(100% - 10px);
+              margin: 0;
+          }
+          .container-left {
+            flex: 3; /* Each child will take equal space in the container */
+            margin: 10px; /* Adds some space between the child elements */
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 20px; /* Adds padding inside each child container */
+            background-color: #f8f8f8; /* Light grey background for visibility */
+            border-radius: 10px; /* Rounds the corners */
+            background-color: rgba(255, 255, 255, 0.8);
+            position: relative; /* Add this line */
+        }
+
+        .container-right {
+            flex: 3; /* Each child will take equal space in the container */
+            margin: 10px; /* Adds some space between the child elements */
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 20px;
+            background-color: #f8f8f8; /* Light grey background for visibility */
+            border-radius: 10px; /* Rounds the corners */
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* media queries to handle smaller screens */
+        @media (max-width: 600px) {
+            .container-row {
+                flex-direction: column; /* Stacks the containers vertically on small screens */
+            }
+        }
+        .slideshow-container {
+            max-width: 100%;
+            position: relative;
+            margin: auto;
+            overflow: hidden; /* Add this to prevent content from spilling out */
+        }
+
+        .mySlides {
+            display: none;
+            animation: fadeEffect 1.5s;
+            position: relative; /* Ensure relative positioning for consistent animation */
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%); /* Center the buttons vertically */
+            width: auto;
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+            z-index: 10; /* Make sure arrows are above the images */
+        }
+
+        .prev {
+            left: 0px;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .next {
+            right: 0px; /* Adjusted to align inside the container */
+            border-radius: 0 3px 3px 0;
+        }
+
+        .extra-buttons {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            width: auto;
+            clear: both;
+            margin: 0;
+            padding: 0;
+            display: flex; /* Ensures the contents are in a row */
+            align-items: center; /* Vertically aligns the contents in the middle */
+        }
+
+        .extra-buttons span {
+            margin-right: 5px; /* Space between text and button */
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .extra-buttons button {
+            padding: 6px 12px;
+            font-size: 24px;
+            background-color: #faad23; /* Orange background color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer; /* Pointer cursor on hover */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white; /* White text for contrast */
+            transition: all 0.3s ease;
+        }
+
+        .extra-buttons button:hover {
+            background-color: #e49b20; /* Slightly darker orange shade on hover */
+        }
+
+        .extra-buttons button::after {
+            content: '→'; /* Right arrow symbol */
+            font-size: 24px;
+            margin-left: 4px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <h1 id="main-title">Next Word Adventure</h1>
+
+    <p id="description"> Have you ever noticed how your phone seems to know what word you're going to type next when you're sending a message, or how Google search seems to guess what you’re about to search before you finish typing? Through Next Word Adventure, you will learn how computers guess the next word in an incomplete sentence using a technique called an N-gram model. You dive into the world of predictive text and see how it's not just magic—it uses some maths!
+    </p>
+
+    <div class="paper-link">
+        📖 <strong>Read the research paper:</strong> <a href="https://dl.acm.org/doi/full/10.1145/3706599.3719789" target="_blank">From Pre-Conceptions to Theories: How Middle School Student Ideas about Predictive Text Evolve after Interaction with a New Software Tool</a>
+    </div>
+
+<div class="flex-wrapper">
+    <section id="student-info">
+      <div class="container-row">
+        <div class="container-left">
+        <h2>How does Next Word Adventure guesses the next word?</h2>
+        <div class="slideshow-container">
+            <div class="mySlides fade">
+              <div class="numbertext">1 / 13</div>
+                <img src="{{ url_for('static', filename='images/1.jpg') }}" style="width:100%">
+            </div>
+
+            <div class="mySlides fade">
+              <div class="numbertext">2 /13 </div>
+                <img src="{{ url_for('static', filename='images/2.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">3 / 13</div>
+                <img src="{{ url_for('static', filename='images/3.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">4 / 13</div>
+                <img src="{{ url_for('static', filename='images/4.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">5 / 13</div>
+                <img src="{{ url_for('static', filename='images/5.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">6 / 13</div>
+                <img src="{{ url_for('static', filename='images/6.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">7 / 13</div>
+                <img src="{{ url_for('static', filename='images/7.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">8 / 13</div>
+                <img src="{{ url_for('static', filename='images/8.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">9 / 13</div>
+                <img src="{{ url_for('static', filename='images/9.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">10 / 13</div>
+                <img src="{{ url_for('static', filename='images/10.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">11 / 13</div>
+                <img src="{{ url_for('static', filename='images/11.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">12 / 13</div>
+                <img src="{{ url_for('static', filename='images/12.jpg') }}"style="width:100%">
+            </div>
+            <div class="mySlides fade">
+              <div class="numbertext">13 / 13</div>
+                <img src="{{ url_for('static', filename='images/13.jpg') }}"style="width:100%">
+            </div>
+        </div>
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    </div>
+    <div class="container-right">
+        <h2>Introduction to probability</h2>
+        </div>
+
+</div>
+</div>
+
+            <div class="extra-buttons">
+              <span>Back</span>
+
+                <button type="button" id="exit-button" onclick="location.href='/'"> </button>
+            </div>
+
+    </section>
+
+    <script>
+    var slideIndex = 1;
+    showSlides(slideIndex);
+
+    // Next/previous controls
+    function plusSlides(n) {
+      showSlides(slideIndex += n);
+    }
+
+    // Thumbnail image controls
+    function currentSlide(n) {
+      showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+      var i;
+      var slides = document.getElementsByClassName("mySlides");
+      if (n > slides.length) {slideIndex = 1}
+      if (n < 1) {slideIndex = slides.length}
+      for (i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
+      }
+      slides[slideIndex-1].style.display = "block";
+    }
+    </script>
+
+</body>
+</html>
